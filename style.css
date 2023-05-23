@@ -1,0 +1,37 @@
+body {
+    background: linear-gradient(to bottom, #4e54c8, #8f94fb); /* Modify the color values as desired */
+  }
+  
+  .container {
+    background: rgba(255, 255, 255, 0.8); /* Add a semi-transparent background to the container for better readability */
+    padding: 20px;
+    margin: 50px auto;
+    max-width: 400px;
+    border-radius: 5px;
+  }
+  
+  h1, h2 {
+    color: #fff; /* Set the text color to white */
+  }
+  
+  input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: none;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #8f94fb;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #4e54c8;
+  }
+  
