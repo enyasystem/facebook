@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Social Media App</title>
+    <title>VYBZ Social</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.7.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="js/main.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Social Media App</h1>
+        <h1>Welcome to VYBZ Social</h1>
 
         <div class="registration-form">
             <!-- Existing registration form code -->
