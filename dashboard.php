@@ -2,8 +2,6 @@
 require_once "config.php";
 include('notifications/notification.php');
 
-
-
 session_start();
 if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
@@ -12,7 +10,6 @@ if (!isset($_SESSION["user_id"])) {
 
 $username = $_SESSION["username"];
 $user_id = $_SESSION["user_id"];
-
 
 // Retrieve friend requests for the logged-in user
 $sql = "SELECT users.* FROM users JOIN friend_requests ON users.id = friend_requests.sender_id WHERE friend_requests.receiver_id = '$user_id'";
@@ -33,8 +30,6 @@ if ($messageCountResult->num_rows == 1) {
     $messageCountRow = $messageCountResult->fetch_assoc();
     $messageCount = $messageCountRow['message_count'];
 }
-
-
 
 // Retrieve user's posts from the database
 $sql = "SELECT * FROM posts WHERE user_id = '$user_id' ORDER BY created_at DESC";
@@ -68,175 +63,130 @@ if ($result->num_rows > 0) {
         $posts[] = $row;
     }
 }
-
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>Social Media App - Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/main.js"></script>
-</head>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
+    body {
+        background-color: #f8f9fa;
+    }
     </style>
+</head>
+
 <body>
-<div class="container">
-    <h1>Welcome, <?php echo $username; ?></h1>
-<nav class="pl-5">
-    <a href="profile.php" class="profile-link">View Profile</a>
-    <a href="create_post.php" class="profile-link">Create Post</a>
-    <a href="messages.php" class="profile-link">Messages</a>
-    <a href="http://localhost/facebook/notifications/notification.php" class="profile-link">Notifications</a>
-    <a href="logout.php">Log out</a>
-</nav>
-    <!-- Existing code -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                Social Media App
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="profile.php">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="friends.php">Friends</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="messages.php">Messages
+                            <?php if ($messageCount > 0): ?>
+                            <span class="badge badge-pill badge-primary"><?php echo $messageCount; ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="edit_profile.php">Edit Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="create_post.php">Create Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.php">Search</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h2>Welcome, <?php echo $username; ?></h2>
+        <h4>Friend Requests</h4>
+        <?php if (count($friendRequests) > 0): ?>
+        <ul class="list-group">
+            <?php foreach ($friendRequests as $request): ?>
+            <li class="list-group-item">
+                <a href="profile.php?id=<?php echo $request['id']; ?>"><?php echo $request['username']; ?></a>
+                wants to be your friend.
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php else: ?>
+        <p>No friend requests at the moment.</p>
+        <?php endif; ?>
 
+        <h4>Your Posts</h4>
+        <?php if (count($posts) > 0): ?>
+        <?php foreach ($posts as $post): ?>
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="card-text"><?php echo $post['content']; ?></p>
+                <p class="card-text">
+                    <small class="text-muted">Posted by <?php echo $username; ?> at
+                        <?php echo $post['created_at']; ?></small>
+                </p>
+                <p class="card-text">
+                    <small class="text-muted">Likes: <?php echo $post['likes']; ?></small>
+                </p>
+                <form method="POST" action="like_post.php">
+                    <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
+                    <button type="submit" class="btn btn-primary">Like</button>
+                </form>
+            </div>
+            <div class="card-footer">
+                <h6>Comments</h6>
+                <?php if (count($post['comments']) > 0): ?>
+                <?php foreach ($post['comments'] as $comment): ?>
+                <p>
+                    <strong><?php echo $comment['username']; ?>:</strong>
+                    <?php if (isset($comment['comment'])) {
+                echo $comment['comment'];
+            } ?>
+                </p>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <p>No comments yet.</p>
+                <?php endif; ?>
 
-    <!-- POST -->
-    <h2>Your Posts</h2>
-    <?php if (!empty($posts)) : ?>
-
-    <ul>
-        <?php foreach ($posts as $post) : ?>
-        <li>
-            <p><?php echo $post['content']; ?></p>
-            <p><?php echo $post['likes']; ?> Likes</p>
-            <ul>
-                
-                <?php
-                        // Check if the 'comment' key is set in the array
-// Check if the 'comment' key is set in the array
-if (isset($_POST['comment'])) {
-    $comment = $_POST['comment'];
-  
-    // Perform necessary validation and sanitization on $comment
-    $comment = trim($comment); // Remove leading/trailing whitespace
-    $comment = htmlspecialchars($comment); // Convert special characters to HTML entities
-  
-    // Check if the comment is empty
-    if (empty($comment)) {
-      echo "Comment is required.";
-    } else {
-      // Save the comment to the database or perform any other actions
-  
-      // Example: Insert the comment into the 'comments' table
-      $sql = "INSERT INTO comments (post_id, user_id, comment) VALUES ('$post_id', '$user_id', '$comment')";
-  
-      if ($conn->query($sql) === true) {
-        // Comment saved successfully
-        echo "Comment added successfully!";
-      } else {
-        // Error saving the comment
-        echo "Error: " . $sql . "<br>" . $conn->error;
-      }
-    }
-  } else {
-    // echo "Comment is required.";
-  }
-  
-  
-                        ?>
-            </ul>
-            <form action="add_comment.php" method="POST">
-                <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
-                <?php
-                 // Display comments
-foreach ($comments as $comment) {
-    // ...
-
-    echo "<p>{$comment['content']}</p>";
-    
-}
-                ?>
-                <input type="text" name="comment" placeholder="Add a comment">
-                <button type="submit">Comment</button>
-
-                <!-- Code for displaying the post comments -->
-<div class="comments-section">
-  <h3>Comments</h3>
-
-  <?php
-
-if (isset($_POST['comment'])) {
-    $comment = $_POST['comment'];
-    // Rest of your code that uses the $comment variable
-  } else {
-    // echo "Comment is required.";
-  }
-  // Fetch comments for the post from the database
-  $sql = "SELECT * FROM comments WHERE post_id = '$post_id'";
-  $result = $conn->query($sql);
-
-  if ($result->num_rows > 0) {
-    // Comments exist for the post
-    while ($row = $result->fetch_assoc()) {
-      $commentId = $row['id'];
-      $commentUser = $row['user_id'];
-    //   $commentContent = $row['comment'];
-
-      // Fetch the user information for the comment author
-      $userSql = "SELECT * FROM users WHERE id = '$commentUser'";
-      $userResult = $conn->query($userSql);
-      $userRow = $userResult->fetch_assoc();
-      $commentAuthor = $userRow['username'];
-
-      // Output the comment
-      echo "<div class='comment'>";
-    //   echo "<p><strong>$username:</strong> $commentId</p>";
-      echo "</div>";
-    }
-  } else {
-    // No comments exist for the post
-    echo "<p>No comments yet.</p>";
-  }
-
- 
-  ?>
-</div>
-
-<!-- Code for comment form -->
-            </form>
-            <form action="like_post.php" method="POST">
-                <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
-                <button type="submit">Like</button>
-            </form>
-        </li>
+                <form method="POST" action="add_comment.php">
+                    <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
+                    <div class="form-group">
+                        <input type="text" name="comment" class="form-control" placeholder="Add a comment">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                </form>
+            </div>
+        </div>
         <?php endforeach; ?>
-    </ul>
-    <?php else : ?>
-    <p>No posts yet.</p>
-    <?php endif; ?>
-
-    <h2>Friend Requests</h2>
-    <?php if (!empty($friendRequests)) : ?>
-    <ul>
-        <?php foreach ($friendRequests as $friendRequest) : ?>
-        <li><?php echo $friendRequest['username']; ?> <a
-                href="accept_friend_request.php?sender_id=<?php echo $friendRequest['id']; ?>">Accept</a></li>
-        <?php endforeach; ?>
-    </ul>
-    <?php else : ?>
-    <p>No friend requests.</p>
-    <?php endif; ?>
-
-    <h2>Notifications</h2>
-    <?php if ($messageCount > 0) : ?>
-    <p>You have <?php echo $messageCount; ?> unread message(s).</p>
-    <?php else : ?>
-    <p>No new notifications.</p>
-    <?php endif; ?>
-    <!-- Add more content and functionality to the dashboard -->
-</div>
-
+        <?php else: ?>
+        <p>No posts to display.</p>
+        <?php endif; ?>
+    </div>
 </body>
 
 </html>
