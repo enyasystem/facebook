@@ -140,52 +140,118 @@ if ($result->num_rows > 0) {
         <p>No friend requests at the moment.</p>
         <?php endif; ?>
 
-        <h4>Your Posts</h4>
-        <?php if (count($posts) > 0): ?>
-        <?php foreach ($posts as $post): ?>
-        <div class="card mb-3">
-            <div class="card-body">
-                <p class="card-text"><?php echo $post['content']; ?></p>
-                <p class="card-text">
-                    <small class="text-muted">Posted by <?php echo $username; ?> at
-                        <?php echo $post['created_at']; ?></small>
-                </p>
-                <p class="card-text">
-                    <small class="text-muted">Likes: <?php echo $post['likes']; ?></small>
-                </p>
-                <form method="POST" action="like_post.php">
-                    <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
-                    <button type="submit" class="btn btn-primary">Like</button>
-                </form>
-            </div>
-            <div class="card-footer">
-                <h6>Comments</h6>
-                <?php if (count($post['comments']) > 0): ?>
-                <?php foreach ($post['comments'] as $comment): ?>
-                <p>
-                    <strong><?php echo $comment['username']; ?>:</strong>
-                    <?php if (isset($comment['comment'])) {
-                echo $comment['comment'];
-            } ?>
-                </p>
-                <?php endforeach; ?>
-                <?php else: ?>
-                <p>No comments yet.</p>
-                <?php endif; ?>
+        <?php
+// session_start();
+if (!isset($_SESSION["user_id"])) {
+    header("Location: index.php");
+    exit();
+}
 
-                <form method="POST" action="add_comment.php">
-                    <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
-                    <div class="form-group">
-                        <input type="text" name="comment" class="form-control" placeholder="Add a comment">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add Comment</button>
-                </form>
+require_once "config.php";
+
+// Handle post deletion
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_post"])) {
+    // Deletion code...
+}
+
+// Handle post editing
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_post"])) {
+    // Editing code...
+}
+
+// Handle post creation
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["content"])) {
+    // Creation code...
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Post</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .options {
+            display: none;
+        }
+
+        .show-options {
+            display: inline-block;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Post</h1>
+        <form method="POST" action="create_post.php" enctype="multipart/form-data">
+            <textarea name="content" placeholder="Enter your post content" class="form-control"></textarea>
+            <br>
+            <div class="form-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" name="image" id="image">
             </div>
-        </div>
-        <?php endforeach; ?>
-        <?php else: ?>
-        <p>No posts to display.</p>
-        <?php endif; ?>
+            <br>
+            <input type="submit" value="Create" class="btn btn-primary">
+        </form>
+
+        <h1>My Posts</h1>
+        <?php
+        $user_id = $_SESSION["user_id"];
+
+        $sql = "SELECT * FROM posts WHERE user_id = '$user_id' ORDER BY created_at DESC";
+        $result = $conn->query($sql);
+
+        if ($result !== null && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $postId = $row["id"];
+                $content = $row["content"];
+                $created_at = $row["created_at"];
+                $image_path = $row["image_path"];
+
+                echo "<div class='card'>";
+                if (!empty($image_path)) {
+                    echo "<img src='$image_path' class='card-img-top' alt='Post Image'>";
+                }
+                echo "<div class='card-body'>";
+                echo "<p>$content</p>";
+                echo "<p>Created at: $created_at</p>";
+                echo "<div class='options'>";
+                echo "<form method='POST' action='create_post.php'>";
+                echo "<input type='hidden' name='delete_post' value='$postId'>";
+                echo "<input type='submit' value='Delete' class='btn btn-danger'>";
+                echo "</form>";
+                echo "<form method='POST' action='edit_post.php'>";
+                echo "<input type='hidden' name='edit_post' value='$postId'>";
+                echo "<input type='submit' value='Edit' class='btn btn-primary'>";
+                echo "</form>";
+                echo "</div>";
+                echo "<div class='show-options' onclick='toggleOptions(this)'>Show Options</div>";
+                echo "<div class='like-button'>Like</div>";
+                echo "<div class='comment-box'>Comment Box</div>";
+                echo "</div>";
+                echo "</div>";
+            }
+        } else {
+            echo "No posts found.";
+        }
+        ?>
+    </div>
+
+    <!-- Add Bootstrap JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        function toggleOptions(button) {
+            var optionsDiv = button.parentNode.querySelector('.options');
+            optionsDiv.style.display = optionsDiv.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
+
+
     </div>
 </body>
 

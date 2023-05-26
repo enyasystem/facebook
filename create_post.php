@@ -1,4 +1,6 @@
 <?php
+
+
 session_start();
 if (!isset($_SESSION["user_id"])) {
     header("Location: index.php");
@@ -123,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["content"])) {
         echo "Error: " . $insertSql . "<br>" . $conn->error;
     }
 
-    $conn->close();
+    // $conn->close();
 }
 ?>
 
@@ -150,38 +152,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["content"])) {
 
         <h1>My Posts</h1>
         <?php
+        $user_id = $_SESSION["user_id"];
+
 // Rest of the code...
+$sql = "SELECT * FROM posts WHERE user_id = '$user_id' ORDER BY created_at DESC";
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $postId = $row["id"];
-        $content = $row["content"];
-        $created_at = $row["created_at"];
-        $image_path = $row["image_path"];
+$result = $conn->query($sql);
+if ($result !== null && $result->num_rows > 0) while ($row = $result->fetch_assoc()) {
+    $postId = $row["id"];
+    $content = $row["content"];
+    $created_at = $row["created_at"];
+    $image_path = $row["image_path"];
 
-        echo "<div class='card'>";
-        if (!empty($image_path)) {
-            echo "<img src='$image_path' class='card-img-top' alt='Post Image'>";
-        }
-        echo "<div class='card-body'>";
-        echo "<p>$content</p>";
-        echo "<p>Created at: $created_at</p>";
-        echo "<form method='POST' action='create_post.php'>";
-        echo "<input type='hidden' name='delete_post' value='$postId'>";
-        echo "<input type='submit' value='Delete' class='btn btn-danger'>";
-        echo "</form>";
-        echo "<form method='POST' action='edit_post.php'>";
-        echo "<input type='hidden' name='edit_post' value='$postId'>";
-        echo "<input type='submit' value='Edit' class='btn btn-primary'>";
-        echo "</form>";
-        echo "</div>";
-        echo "</div>";
+    echo "<div class='card'>";
+    if (!empty($image_path)) {
+        echo "<img src='$image_path' class='card-img-top' alt='Post Image'>";
     }
-} else {
+    echo "<div class='card-body'>";
+    echo "<p>$content</p>";
+    echo "<p>Created at: $created_at</p>";
+    echo "<form method='POST' action='create_post.php'>";
+    echo "<input type='hidden' name='delete_post' value='$postId'>";
+    echo "<input type='submit' value='Delete' class='btn btn-danger'>";
+    echo "</form>";
+    echo "<form method='POST' action='edit_post.php'>";
+    echo "<input type='hidden' name='edit_post' value='$postId'>";
+    echo "<input type='submit' value='Edit' class='btn btn-primary'>";
+    echo "</form>";
+    echo "</div>";
+    echo "</div>";
+}
+ else {
     echo "No posts found.";
 }
 
-// Rest of the code...
+
+
 ?>
 
     </div>
