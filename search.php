@@ -59,7 +59,6 @@ if (isset($_GET['query'])) {
 <body>
     <!-- Navigation bar -->
     <?php include "navbar.php"; ?>
-
     <div class="container mt-5">
         <h2>Search</h2>
 
