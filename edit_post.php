@@ -6,6 +6,7 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 require_once "config.php";
+require_once "nav.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["edit_post"])) {
     $post_id = $_POST["edit_post"];

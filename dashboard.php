@@ -71,6 +71,9 @@ if ($result->num_rows > 0) {
 <head>
     <title>Social Media App - Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+     <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/main.js"></script>
     <style>
@@ -114,12 +117,11 @@ if ($result->num_rows > 0) {
                     <li class="nav-item">
                         <a class="nav-link" href="edit_profile.php">Edit Profile</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="create_post.php">Create Post</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="search.php">Search</a>
-                    </li>
+                   <!-- Search form -->
+        <form method="GET" action="search.php" class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" name="query" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+        </form>
                 </ul>
             </div>
         </div>
@@ -228,7 +230,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["content"])) {
                 echo "<input type='submit' value='Edit' class='btn btn-primary'>";
                 echo "</form>";
                 echo "</div>";
-                echo "<div class='show-options' onclick='toggleOptions(this)'>Show Options</div>";
+                echo "<div class='show-options' onclick='toggleOptions(this)'><i class='fas fa-ellipsis-v'></i></div>";
                 echo "<div class='like-button'>Like</div>";
                 echo "<div class='comment-box'>Comment Box</div>";
                 echo "</div>";
